@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>IVG 2026 Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #0a3a82, #05224d);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      width: 380px;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0a3a82;
+      margin-bottom: 16px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 6px;
+      background: #16a34a;
+      color: white;
+    }
+
+    .error {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fde2e2;
+      color: #991b1b;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Intervarsity Games 2026</h2>
+
+  <form id="regForm">
+    <input type="text" id="full_name" placeholder="Full Name" required />
+    <input type="text" id="student_id" placeholder="Student ID" required />
+
+    <select id="category" required>
+      <option value="">Select Category</option>
+      <option value="SRC">SRC</option>
+      <option value="FAC">Facilitator</option>
+      <option value="ATH">Athlete</option>
+      <option value="ATT">Attendee</option>
+    </select>
+
+    <input type="email" id="email" placeholder="Email Address" required />
+
+    <button type="submit">Register Participant</button>
+  </form>
+
+  <div id="message"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://eqyfygzpohsnjstnvktj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWZ5Z3pwb2hzbmpzdG52a3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5Mjk5NDMsImV4cCI6MjA4NjUwNTk0M30.YtfH9QggE7tFfnOdshEZhvhdVZPKVaBmeLot2KuHGpU";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const form = document.getElementById("regForm");
+const messageBox = document.getElementById("message");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  messageBox.innerHTML = "";
+
+  const full_name = document.getElementById("full_name").value.trim();
+  const student_id = document.getElementById("student_id").value.trim();
+  const category = document.getElementById("category").value;
+  const email = document.getElementById("email").value.trim();
+
+  const { data, error } = await supabase.rpc("register_participant", {
+    p_full_name: full_name,
+    p_student_id: student_id,
+    p_category: category,
+    p_email: email
+  });
+
+  if (error) {
+    messageBox.innerHTML = `<div class="error">${error.message}</div>`;
+    return;
+  }
+
+  // Supabase RPC returns an array
+  const assignedCode = data[0].assigned_code;
+
+  // Redirect to review page
+  window.location.href = "review.html?code=" + assignedCode;
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>IVG 2026 Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(180deg, #0a3a82, #05224d);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      width: 420px;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0a3a82;
+    }
+
+    .info {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: white;
+    }
+
+    .collect { background: #16a34a; }
+    .verify { background: #2563eb; }
+
+    .error {
+      background: #fde2e2;
+      color: #991b1b;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Verification Portal</h2>
+
+  <div id="details"></div>
+  <div id="statusBox"></div>
+
+  <button class="collect" onclick="markCollected()">Mark Collected</button>
+  <button class="verify" onclick="markVerified()">Mark Verified</button>
+
+  <div id="message"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://eqyfygzpohsnjstnvktj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWZ5Z3pwb2hzbmpzdG52a3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5Mjk5NDMsImV4cCI6MjA4NjUwNTk0M30.YtfH9QggE7tFfnOdshEZhvhdVZPKVaBmeLot2KuHGpU";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+const details = document.getElementById("details");
+const statusBox = document.getElementById("statusBox");
+const message = document.getElementById("message");
+
+let participant = null;
+
+async function loadParticipant() {
+
+  if (!code) {
+    details.innerHTML = `<div class="error">No code provided.</div>`;
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("participants")
+    .select("*")
+    .eq("assigned_code", code)
+    .single();
+
+  if (error || !data) {
+    details.innerHTML = `<div class="error">Invalid QR Code.</div>`;
+    return;
+  }
+
+  participant = data;
+
+  details.innerHTML = `
+    <div class="info"><b>Code:</b> ${data.assigned_code}</div>
+    <div class="info"><b>Name:</b> ${data.full_name}</div>
+    <div class="info"><b>Student ID:</b> ${data.student_id}</div>
+    <div class="info"><b>Category:</b> ${data.category}</div>
+  `;
+
+  updateStatusDisplay();
+}
+
+function updateStatusDisplay() {
+  statusBox.innerHTML = `
+    <div class="status">
+      <b>Collected:</b> ${participant.collected ? "YES" : "NO"}<br>
+      <b>Verified:</b> ${participant.verified ? "YES" : "NO"}
+    </div>
+  `;
+}
+
+async function markCollected() {
+
+  if (!participant) return;
+
+  const { error } = await supabase
+    .from("participants")
+    .update({
+      collected: true,
+      collection_time: new Date()
+    })
+    .eq("assigned_code", participant.assigned_code);
+
+  if (error) {
+    message.innerHTML = `<div class="error">${error.message}</div>`;
+    return;
+  }
+
+  participant.collected = true;
+  updateStatusDisplay();
+  message.innerHTML = `<div class="success">Marked as collected.</div>`;
+}
+
+async function markVerified() {
+
+  if (!participant) return;
+
+  const { error } = await supabase
+    .from("participants")
+    .update({
+      verified: true,
+      verification_time: new Date()
+    })
+    .eq("assigned_code", participant.assigned_code);
+
+  if (error) {
+    message.innerHTML = `<div class="error">${error.message}</div>`;
+    return;
+  }
+
+  participant.verified = true;
+  updateStatusDisplay();
+  message.innerHTML = `<div class="success">Marked as verified.</div>`;
+}
+
+loadParticipant();
+</script>
+
+</body>
+</html>
