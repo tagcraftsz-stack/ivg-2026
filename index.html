@@ -111,22 +111,37 @@ form.addEventListener("submit", async (e) => {
     p_email: email
   });
 
-  if (error) {
-    messageBox.innerHTML = `<div class="error">${error.message}</div>`;
-    return;
-  }
+if (error) {
+  messageBox.innerHTML = `<div class="error">${error.message}</div>`;
+  return;
+}
 
-  if (!data || !data.assigned_code) {
-    messageBox.innerHTML = `<div class="error">Registration succeeded but no code returned.</div>`;
-    return;
-  }
+if (!data) {
+  messageBox.innerHTML = `<div class="error">Registration failed. No data returned.</div>`;
+  return;
+}
 
-  // 🔥 REDIRECT
-  window.location.href = `review.html?code=${data.assigned_code}`;
-});
+console.log("RPC RESULT:", data);
+
+let assignedCode = null;
+
+if (Array.isArray(data)) {
+  assignedCode = data[0]?.assigned_code;
+} else {
+  assignedCode = data.assigned_code;
+}
+
+if (!assignedCode) {
+  messageBox.innerHTML = `<div class="error">No assigned code returned.</div>`;
+  return;
+}
+
+window.location.href = `review.html?code=${assignedCode}`;
+
 </script>
 
 </body>
 </html>
+
 
 
