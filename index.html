@@ -116,7 +116,12 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // IMPORTANT: REDIRECT HERE
+  if (!data || !data.assigned_code) {
+    messageBox.innerHTML = `<div class="error">Registration succeeded but no code returned.</div>`;
+    return;
+  }
+
+  // 🔥 REDIRECT
   window.location.href = `review.html?code=${data.assigned_code}`;
 });
 </script>
