@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <title>IVG 2026 Registration</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -91,7 +89,7 @@
 
 <script>
 const SUPABASE_URL = "https://eqyfygzpohsnjstnvktj.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWZ5Z3pwb2hzbmpzdG52a3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5Mjk5NDMsImV4cCI6MjA4NjUwNTk0M30.YtfH9QggE7tFfnOdshEZhvhdVZPKVaBmeLot2KuHGpU";
+const SUPABASE_KEY = "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxeWZ5Z3pwb2hzbmpzdG52a3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5Mjk5NDMsImV4cCI6MjA4NjUwNTk0M30";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -100,7 +98,6 @@ const messageBox = document.getElementById("message");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  messageBox.innerHTML = "";
 
   const full_name = document.getElementById("full_name").value.trim();
   const student_id = document.getElementById("student_id").value.trim();
@@ -119,11 +116,8 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // Supabase RPC returns an array
-  const assignedCode = data[0].assigned_code;
-
-  // Redirect to review page
-  window.location.href = "review.html?code=" + assignedCode;
+  // IMPORTANT: REDIRECT HERE
+  window.location.href = `review.html?code=${data.assigned_code}`;
 });
 </script>
 
